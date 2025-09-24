@@ -2,9 +2,9 @@
 ##### Autumn/Winter 2025/26
 ----
 
-Group Id: **G00**
+Group Id: **G06**
 
 Members:
- - 11111 - Name1 Surname1
+ - 51585 - André Vaz
  - 22222 - Name2 Surname2
  - 33333 - Name3 Surname3
