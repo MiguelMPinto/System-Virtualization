@@ -6,5 +6,5 @@ Group Id: **G06**
 
 Members:
  - 51585 - André Vaz
- - 22222 - Name2 Surname2
- - 33333 - Name3 Surname3
+ - 22222 - Miguel Pinto
+ - 33333 - Diogo Teixeira
