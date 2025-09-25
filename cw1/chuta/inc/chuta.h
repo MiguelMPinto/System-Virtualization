@@ -9,11 +9,13 @@
 #ifndef CHUTA_H
 #define CHUTA_H
 
-#include <stdlib.h>
-#include <stdbool.h>
+#include <stddef.h>   // size_t
+#include <stdbool.h>  // bool
+#include <stdlib.h>   // EXIT_SUCCESS / EXIT_FAILURE
+#include <unistd.h>   // _exit
 
-#define CH_ASSERT(test_expression) \
-	do { if (!(test_expression)) { /* (to be defined) */ } } while (0)
+#define CH_ASSERT(test_expression) \		
+	do { if (!(test_expression)) { _exit(EXIT_FAILURE); } } while (0)
 
 typedef void (*test_function)();
 
