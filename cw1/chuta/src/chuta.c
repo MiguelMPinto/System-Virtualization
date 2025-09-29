@@ -19,35 +19,58 @@ static int run_test(test_function tfunc);
 
 void run_function_tests(test_function tests[], size_t num_tests, bool stop_at_first_failure)
 {
+
+	size_t tests_executed = 0;
+	size_t sucess = 0;
+	size_t failures = 0;
+
 	/* (to be implemented) */
-	for (int i = 0; i < num_tests; i++)
+	for (size_t i = 0; i < num_tests; i++)
 	{
-		pid_t pid = fork();
-		if (pid == 0)
+		pid_t processoTeste = fork();
+		if (processoTeste == 0)
 		{ // Verifica se é filho
-			tests[i]();
+			tests[i](); 
 			_exit(EXIT_SUCCESS); // se a função acabar normalmente → SUCCESS
 		}
-		else
+		else if (processoTeste > 0)
 		{ // Verifica se é Pai
 			int status;
-			waitpid(pid, &status, 0);	// Espera para que o filho acabe
+			tests_executed++;
+
+			waitpid(processoTeste, &status, 0);	// Espera para que o filho acabe
 			if (WIFEXITED(status))
 			{ // Terminou normalmente
-				int code = WEXITSTATUS(status);
-				if (code == EXIT_SUCCESS){	// Verifica Success
+
+				int exit_code = WEXITSTATUS(status); // verifica qual o código do exit
+				if (exit_code == EXIT_SUCCESS){	// bem sucedido
+				
+					sucess++;
 					printf("[%zu] SUCCESS\n", i);
 				}
-				else if (code == EXIT_FAILURE){		// Verifica Fracasso
+				else if (exit_code == EXIT_FAILURE){		// Verifica Fracasso
+					failures++;
 					printf("[%zu] ASSERTION_FAILED\n", i);
+					if(stop_at_first_failure) break; // caso seja true , para imediatamente ao primeiro teste falhado
 				}
 			}
+
 			else if (WIFSIGNALED(status))			
 			{	// Foi morto
+				failures++;
 				printf("[%zu] TERMINATED(%d)\n", i, WTERMSIG(status));
+				if(stop_at_first_failure) break;
 			}
 		}
+
+		else{ // caso tenha existido um erro na realização do fork (processoTeste == -1 )
+			tests_executed++;
+			failures++;
+			printf("[%d] FORK_FAILED\n", i);
+			if(stop_at_first_failure) break;
+		}
 	}
+printf("Resumo: total_tests=%zu, tests_executed=%zu, success=%zu, failures=%zu\n",num_tests,tests_executed,sucess,failures);
 }
 
 static int run_test(test_function tfunc)
