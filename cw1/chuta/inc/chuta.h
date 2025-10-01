@@ -37,6 +37,14 @@
 
 typedef void (*test_function)();
 
-void run_function_tests(test_function tests[], size_t num_tests, bool stop_at_first_failure);
+typedef struct 
+{
+    const char* name;
+    test_function fun;
+} tests_named;
 
-#endif // CHUTA_H
+void run_function_tests(tests_named tests[], size_t num_tests, bool stop_at_first_failure);
+
+
+
+#endif; // CHUTA_H

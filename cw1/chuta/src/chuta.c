@@ -17,7 +17,7 @@
 
 static int run_test(test_function tfunc);
 
-void run_function_tests(test_function tests[], size_t num_tests, bool stop_at_first_failure)
+void run_function_tests(tests_named tests[], size_t num_tests, bool stop_at_first_failure)
 {
 
 	size_t tests_executed = 0;
@@ -27,17 +27,17 @@ void run_function_tests(test_function tests[], size_t num_tests, bool stop_at_fi
 
 	for (size_t i = 0; i < num_tests; i++)
 	{
-     	int fds[2];        
+     	int fds[2];       
 		pipe(fds);  
 		pid_t processoTeste = fork();
 		if (processoTeste == 0)
 		{ // Verifica se é filho
-			close(fds[0]);
-			if (dup2(fds[1], STDERR_FILENO) == -1) {    
-    			_exit(127);                              
+			close(fds[0]); // fecha o fd de leitura , já que es	te não é utilizado
+			if (dup2(fds[1], STDERR_FILENO) == -1) {    // redireciona o fd[2] que é o stderr para o fds[1] que o fd de escrita
+    			_exit(127);   // em caso de erro , da exit com status code 127                           
 			}
-			close(fds[1]);
-			tests[i](); 
+			close(fds[1]);  // fechamos o fd de escrita porque já não precisamos dele
+			tests[i].fun(); 
 			_exit(EXIT_SUCCESS); // se a função acabar normalmente → SUCCESS
 		}
 
@@ -45,7 +45,7 @@ void run_function_tests(test_function tests[], size_t num_tests, bool stop_at_fi
 		{ // Verifica se é Pai
 			int status;
 			tests_executed++;
-			close(fds[1]);
+			close(fds[1]); // fechamos o fd de escrita já que este não é necessário
   
 
 			waitpid(processoTeste, &status, 0);	// Espera para que o filho acabe
@@ -56,11 +56,11 @@ void run_function_tests(test_function tests[], size_t num_tests, bool stop_at_fi
 				if (exit_code == EXIT_SUCCESS){	// bem sucedido
 				
 					sucess++;
-					printf("[%zu] SUCCESS\n", i);
+					printf("Function with name [%s] and index [%zu] -> SUCCESS\n",tests[i].name, i);
 				}
 				else if (exit_code == EXIT_FAILURE){		// Verifica Fracasso
 					failures++;
-					printf("[%zu] ASSERTION_FAILED\n", i);
+					printf("Function with name [%s] and index [%zu] ->  ASSERTION_FAILED\n",tests[i].name, i);
 
 				}
 			}
@@ -68,14 +68,14 @@ void run_function_tests(test_function tests[], size_t num_tests, bool stop_at_fi
 			else if (WIFSIGNALED(status))			
 			{	// Foi morto
 				failures++;
-				printf("[%zu] TERMINATED(%d)\n", i, WTERMSIG(status));
+				printf("Function with name [%s] and index [%zu] -> TERMINATED(%d)\n", tests[i].name,i,WTERMSIG(status));
 			}
-			char buf[256];
+			char buf[256]; // criação de um buffer temporário para armazenar os dados lidos do pipe
 			ssize_t n;
-			while ((n = read(fds[0], buf, sizeof buf)) > 0) {
-    			fwrite(buf, 1, n, stdout);
+			while ((n = read(fds[0], buf, sizeof buf)) > 0) {  // enquanto existir dados para ler vindos do filho , quando não existir mais dados a ler , o read retornará 0 e portanto sai do while
+    			fwrite(buf, 1, n, stdout); // escrevemos no stdout esses dados
 			}
-			close(fds[0]);                     
+			close(fds[0]);   // fecha o lado de leitura pois o filho terminou.              
 
 			if (stop_at_first_failure &&       // parar no 1.º falhado/terminado
     			(!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_SUCCESS)) break;
@@ -87,7 +87,7 @@ void run_function_tests(test_function tests[], size_t num_tests, bool stop_at_fi
 			tests_executed++;
 			failures++;
 			printf("[%zu] FORK_FAILED\n", i);
-			close(fds[0]);
+			close(fds[0]); // fecha o pipe
 			close(fds[1]);
 			if(stop_at_first_failure) break;
 		}
@@ -99,4 +99,4 @@ static int run_test(test_function tfunc)
 {
 	/* (to be implemented) */
 	return -1;
-}
+};
