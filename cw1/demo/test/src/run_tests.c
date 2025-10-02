@@ -23,9 +23,10 @@ tests_named all_function_tests[] = {
 // 
 // DECLARE ALL PROGRAM TESTS
 //
-//prog_function all_program_tests[] = {
-//	/* ... */
-//};
+prog_function all_program_tests[] = {
+    {"cat simple", "cat", "input.txt", "expected_cat.txt"},
+    {"wc line count", "wc -l", "input.txt", "expected_wc.txt"}
+};
 
 ////////////////////////
 // 
@@ -37,13 +38,13 @@ tests_named all_function_tests[] = {
 #define ARRLEN(arr) (sizeof(arr)/sizeof(arr[0]))
 
 const size_t num_function_tests = ARRLEN(all_function_tests);
-//const size_t num_program_tests = ARRLEN(all_program_tests);
+const size_t num_program_tests = ARRLEN(all_program_tests);
 
 int main() {
 	
 	run_function_tests(all_function_tests, num_function_tests, true);
 	
-	//run_stdio_program_tests(...);
-	
+    run_stdio_program_tests(all_program_tests, num_program_tests, true);	
+    
 	return 0;
 }

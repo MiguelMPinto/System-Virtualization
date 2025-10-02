@@ -37,8 +37,7 @@
 
 typedef void (*test_function)();
 
-typedef struct 
-{
+typedef struct {
     const char* name;
     test_function fun;
 } tests_named;
@@ -47,4 +46,15 @@ void run_function_tests(tests_named tests[], size_t num_tests, bool stop_at_firs
 
 
 
-#endif; // CHUTA_H
+// Testes de programas (Exercício 3)
+typedef struct {
+    const char* name;                  // nome do teste
+    const char* command;               // comando a executar
+    const char* input_file;            // ficheiro de input (simula stdin)
+    const char* expected_output_file;  // ficheiro com o output esperado
+} prog_function;
+
+void run_stdio_program_tests(prog_function tests[], size_t num_tests, bool stop_at_first_failure);
+
+
+#endif // CHUTA_H
