@@ -159,10 +159,6 @@ void run_stdio_program_tests(prog_function tests[], size_t num_tests, bool stop_
             // --- Filho ---
             int fd_in = open(tests[i].input_file, O_RDONLY);
             if (fd_in < 0) _exit(EXIT_FAILURE);
-            if (fd_in < 0) {
-                perror("open input_file failed");
-                _exit(EXIT_FAILURE);
-            }
             dup2(fd_in, STDIN_FILENO);
             close(fd_in);
 
