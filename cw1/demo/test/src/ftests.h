@@ -17,5 +17,7 @@
 void test_add();
 void test_sub();
 void test_strsize();
+void test_sub_negative();
+void test_strsize_empty();
 
 #endif // FTESTS_H

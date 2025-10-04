@@ -16,7 +16,9 @@
 tests_named all_function_tests[] = {
 	{"test_add" ,test_add},
 	{"test_sub" ,test_sub},
-	{"test_strsize", test_strsize}
+	{"test_strsize", test_strsize},
+	{"test_sub_negative", test_sub_negative},
+	{"test_strsize_empty", test_strsize_empty}
 };
 
 //////////////////////////////
