@@ -9,7 +9,7 @@ data:   .byte  47, 101, 116,  99
         .text
         .globl _start
 _start:
-        movq $-100, %rdi
+        movq $-100, %rdi              
         leaq data(%rip), %rsi
         xorq %rdx, %rdx
         movq $257, %rax
