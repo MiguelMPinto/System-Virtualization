@@ -9,7 +9,6 @@ extern unsigned char extra_data[];
 #endif
 
 void add_data_with_rss(void) {
-    printf("=== Alínea e ===\n");
     printf("add_data_with_rss: vou tocar ~256KB em extra_data para aumentar Rss dessa região.\n");
 
     size_t target = 256 * 1024; /* 256 KB */
@@ -18,13 +17,16 @@ void add_data_with_rss(void) {
     long ps = sysconf(_SC_PAGESIZE);
     if (ps <= 0) ps = 4096;
 
+
     /* Escrever 1 byte por página para trazer as páginas para memória física */
     for (size_t off = 0; off < target; off += (size_t)ps) {
         extra_data[off] = (unsigned char)(extra_data[off] + 1);
     }
 
+
     /* Ler/accumular para evitar que o compilador elimine os writes */
     volatile unsigned char acc = 0;
+    
     for (size_t off = 0; off < target; off += (size_t)ps) acc += extra_data[off];
     (void)acc;
 

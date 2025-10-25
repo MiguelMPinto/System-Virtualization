@@ -9,17 +9,21 @@
 // as páginas previamente tocadas na .bss estarão partilhadas (COW) entre pai e filho.
 
 void do_alinea_c(void) {
-    printf("=== Alínea c ===\n");
+
     pid_t pid = fork();
+
     if (pid < 0) {
         perror("do_alinea_c: fork");
         return;
+
     } else if (pid == 0) {
         // filho
         printf("[filho] PID=%d: vou dormir 30s para manter partilha de páginas (.bss)\n", getpid());
         sleep(30);
+
         printf("[filho] PID=%d: a sair agora.\n", getpid());
         _exit(0);
+        
     } else {
         // pai
         printf("[pai] PID=%d: filho PID=%d. Durante os próximos ~30s as páginas da .bss estarão partilhadas (ver /proc/%d/smaps).\n",

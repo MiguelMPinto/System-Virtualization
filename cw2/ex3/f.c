@@ -11,11 +11,13 @@ void *code_region = NULL;
 size_t code_region_size = 0;
 
 void create_new_regions(void) {
-    printf("=== Alínea f ===\n");
+
     // 1) criar região de código (~4KB)
     code_region_size = 4096;
     code_region = mmap(NULL, code_region_size, PROT_READ | PROT_WRITE,
                        MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+
+
     if (code_region == MAP_FAILED) {
         perror("create_new_regions: mmap code_region");
         code_region = NULL;
@@ -34,6 +36,8 @@ void create_new_regions(void) {
     new_data_region_size = 256 * 1024;
     new_data_region = mmap(NULL, new_data_region_size, PROT_READ | PROT_WRITE,
                            MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+
+
     if (new_data_region == MAP_FAILED) {
         perror("create_new_regions: mmap new_data_region");
         new_data_region = NULL;
