@@ -33,8 +33,6 @@ void increase_rss(byte *ptr_regiao, int bytes_alvo) {
     size_t span = (size_t)bytes_alvo;
     size_t pages = (span + page_size - 1) / page_size;
 
-    volatile byte *v = (volatile byte *)ptr_regiao;
-
     // Tocar 1 byte no início de cada página: 0, page_size, 2*page_size, ...
     for (size_t i = 0; i < pages; ++i) {
         size_t off = i * page_size;
