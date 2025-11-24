@@ -4,7 +4,7 @@ import express  from 'express';
 import { execFile } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
-const DEFAULT_OLLAMA_URL   = 'http://localhost:11434';
+const DEFAULT_OLLAMA_URL   = 'http://127.0.0.1:11434';
 const DEFAULT_OLLAMA_MODEL = 'llama3.2:1b';
 const DEFAULT_MESSAGE      = 'Hint: sudo apt install fortune-mod fortunes';
 
