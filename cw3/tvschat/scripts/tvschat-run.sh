@@ -53,21 +53,25 @@ fi
 case "$ARG" in 
         private)
         echo "private"
-        rm -f /etc/nginx/sites-enabled/tvschat-dev  # a flag -f serve apenas para , caso não encontre (que é uma condição possivel) não lança exceção , caso encontre remove simplesmente
+        rm -f /etc/nginx/sites-enabled/tvschat-dev /etc/nginx/sites-enabled/default # a flag -f serve apenas para , caso não encontre (que é uma condição possivel) não lança exceção , caso encontre remove simplesmente
+
         systemctl reload nginx
         ;;
 
         prod)
         echo "prod"
-         cp cw3/nginx/tvschat-prod /etc/nginx/sites-available/tvschat-dev    
-        ln -sf /etc/nginx/sites-available/tvschat-prod /etc/nginx/sites-enabled/tvschat # queremos criar um um symbolic link que é o que o -s faz e utilizar o -f para subsituir caso exista ou não um link 
+        cp cw3/nginx/tvschat-dev /etc/nginx/sites-available/tvschat-dev    
+        ln -sf /etc/nginx/sites-available/tvschat-dev /etc/nginx/sites-enabled/tvschat-dev # queremos criar um um symbolic link que é o que o -s faz e utilizar o -f para subsituir caso exista ou não um link 
+        rm -f /etc/nginx/sites-enabled/default
         systemctl reload nginx                                                          # importante que para conseguirmos tornar publico apenas a aplicação node sem o ollama     
+
         ;;
 
         dev)
         echo "dev"                                                                                      
-        cp cw3/nginx/tvschat-dev /etc/nginx/sites-available/tvschat-dev                  #basta copiarmos o tvschat-dev para a diretoria de sites-available e depois , à semelhança do que fizemos em cima , criamos um symbolic link e substuir qualquer um esteja lá previamente               
-        ln -sf /etc/nginx/sites-available/tvschat-dev /etc/nginx/sites-enabled/tvschat
+        cp cw3/nginx/tvschat-dev /etc/nginx/sites-available/tvschat-dev                  #basta copiarmos o tvschat-dev para a diretoria de sites-available e depois , à semelhança do que fizemos em cima , criamos um symbolic link e substuir qualquer um esteja lá previamente      
+        ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default        
+        ln -sf /etc/nginx/sites-available/tvschat-dev /etc/nginx/sites-enabled/tvschat-dev
         systemctl reload nginx
         ;;
 esac
