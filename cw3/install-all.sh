@@ -1,57 +1,108 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
-# -----------------------------
-# Users and groups
-# -----------------------------
-echo "Creating users..."
+TAG="[install-all]"
+
+# Diretórios alvo
+PREFIX=/opt/isel/tvs
+TVSCHAT_PREFIX=${PREFIX}/tvschat
+MANAGER_PREFIX=${TVSCHAT_PREFIX}/manager
+CLIENT_DST=${MANAGER_PREFIX}/client/bin
+DAEMON_DST=${MANAGER_PREFIX}/daemon/bin
+SYSTEMD_DST=/etc/systemd/system
+SCRIPTS_DST=${PREFIX}
+
+CLIENT_SRC=tvschat/manager/client/bin/tvschat
+DAEMON_SRC=tvschat/manager/daemon/bin/tvschatd
+SCRIPTS_SRC_DIR=tvschat/scripts
+SYSTEMD_DIR=systemd
+WEBAPP_SRC_DIR=tvschat/webapp
+
+echo "${TAG} Starting install (copy only — no systemd enable/start will be performed)..."
+
+# cria grupo e usuário se necessário
+if ! getent group tvsgrp >/dev/null; then
+    echo "${TAG} creating group 'tvsgrp'..."
+    sudo groupadd tvsgrp
+fi
+
 if ! id -u isel &>/dev/null; then
-    sudo useradd -m -s /bin/bash isel
-    echo "User 'isel' created"
+    echo "${TAG} creating user 'isel' and adding to tvsgrp..."
+    sudo useradd -m -s /bin/bash -G tvsgrp isel
 else
-    echo "User 'isel' already exists"
+    if ! id -nG isel | grep -qw tvsgrp; then
+        echo "${TAG} adding user 'isel' to group 'tvsgrp'..."
+        sudo usermod -aG tvsgrp isel
+    fi
 fi
 
-if ! id -u ollama &>/dev/null; then
-    sudo useradd -m -s /bin/bash ollama
-    echo "User 'ollama' created"
+echo "${TAG} creating target directories..."
+sudo mkdir -p "${CLIENT_DST}" "${DAEMON_DST}" "${PREFIX}" "${SYSTEMD_DST}" "${TVSCHAT_PREFIX}/webapp" /run/isel
+
+# copia binário do cliente
+if [ -x "${CLIENT_SRC}" ]; then
+    echo "${TAG} copying client binary -> ${CLIENT_DST}/tvschat"
+    sudo cp "${CLIENT_SRC}" "${CLIENT_DST}/tvschat"
+    sudo chown root:tvsgrp "${CLIENT_DST}/tvschat"
+    sudo chmod 0750 "${CLIENT_DST}/tvschat"
 else
-    echo "User 'ollama' already exists"
+    echo "${TAG} ERROR: client binary not found at ${CLIENT_SRC}; build it first"
 fi
 
-# -----------------------------
-# Create directories
-# -----------------------------
-echo "Creating directories..."
-sudo mkdir -p /opt/isel/tvs/tvschat/webapp
-sudo mkdir -p /etc/nginx/sites-available
-sudo mkdir -p /etc/nginx/sites-enabled
+# copia binário do daemon
+if [ -x "${DAEMON_SRC}" ]; then
+    echo "${TAG} copying daemon binary -> ${DAEMON_DST}/tvschatd"
+    sudo cp "${DAEMON_SRC}" "${DAEMON_DST}/tvschatd"
+    sudo chown root:tvsgrp "${DAEMON_DST}/tvschatd"
+    sudo chmod 0750 "${DAEMON_DST}/tvschatd"
+else
+    echo "${TAG} ERROR: daemon binary not found at ${DAEMON_SRC}; build it first"
+fi
 
-# -----------------------------
-# Copy systemd units
-# -----------------------------
-echo "Copying systemd units..."
-#sudo cp cw3/systemd/tvschatd.service /etc/systemd/system/
-sudo cp systemd/tvswebapp.service /etc/systemd/system/
+# copia scripts
+if [ -d "${SCRIPTS_SRC_DIR}" ]; then
+    echo "${TAG} copying scripts -> ${SCRIPTS_DST}/"
+    for f in "${SCRIPTS_SRC_DIR}"/*.sh; do
+        [ -e "$f" ] || continue
+        sudo cp "$f" "${SCRIPTS_DST}/"
+        sudo chown root:tvsgrp "${SCRIPTS_DST}/$(basename "$f")"
+        sudo chmod 0750 "${SCRIPTS_DST}/$(basename "$f")"
+        echo "  - copied $(basename "$f")"
+    done
+else
+    echo "${TAG} WARNING: scripts dir not found (${SCRIPTS_SRC_DIR})"
+fi
 
-# -----------------------------
-# Copy webapp
-# -----------------------------
-echo "Copying web application..."
-sudo cp -r tvschat/webapp/* /opt/isel/tvs/tvschat/webapp/
-sudo chown -R isel:isel /opt/isel/tvs
+# copia systemd units
+if [ -d "${SYSTEMD_DIR}" ]; then
+    echo "${TAG} copying systemd units -> ${SYSTEMD_DST}/"
+    for u in "${SYSTEMD_DIR}"/*.service "${SYSTEMD_DIR}"/*.socket; do
+        [ -e "$u" ] || continue
+        bname=$(basename "$u")
+        sudo cp "$u" "${SYSTEMD_DST}/${bname}"
+        sudo chown root:root "${SYSTEMD_DST}/${bname}"
+        sudo chmod 0644 "${SYSTEMD_DST}/${bname}"
+        echo "  - installed ${bname}"
+    done
+fi
 
-# -----------------------------
-# Copy NGINX configs
-# -----------------------------
-echo "Copying NGINX configs..."
-sudo cp nginx/tvschat-dev /etc/nginx/sites-available/
+# copia webapp se existir
+if [ -d "${WEBAPP_SRC_DIR}" ]; then
+    echo "${TAG} installing webapp -> ${TVSCHAT_PREFIX}/webapp"
+    sudo rm -rf "${TVSCHAT_PREFIX}/webapp"/*
+    sudo cp -r "${WEBAPP_SRC_DIR}"/* "${TVSCHAT_PREFIX}/webapp/" || true
+    sudo chown -R isel:isel "${TVSCHAT_PREFIX}/webapp"
+fi
 
-# -----------------------------
-# Set permissions
-# -----------------------------
-echo "Setting permissions..."
-sudo chown -R isel:isel /opt/isel/tvs
-sudo chown -R root:root /etc/nginx/sites-available/tvschat-dev
+# prepara /run/isel para socket systemd
+sudo chown root:tvsgrp /run/isel
+sudo chmod 0770 /run/isel
 
-echo "Installation complete. You can now enable/start services."
+echo "${TAG} install finished."
+echo ""
+echo "Next steps:"
+echo " 1) Reload systemd unit files:"
+echo "      sudo systemctl daemon-reload"
+echo " 2) Enable/start socket:"
+echo "      sudo systemctl enable tvschatd.socket"
+echo "      sudo systemctl start tvschatd.socket"
