@@ -2,7 +2,6 @@
 Description=TVS Chat Manager activation socket
 
 [Socket]
-
 ListenStream=/run/isel/tvschat/request
 
 SocketMode=0660
