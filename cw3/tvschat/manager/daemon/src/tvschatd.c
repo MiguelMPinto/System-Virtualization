@@ -66,6 +66,10 @@ void process_connection(int cfd) {
 
 	pid_t pid = fork();
     	if (pid == 0) {
+
+        dup2(cfd,STDOUT_FILENO); 
+        dup2(cfd,STDERR_FILENO);
+
     close(cfd);
     if (strlen(info.arg) > 0) {
         char *argv[] = { info.script, info.arg, NULL };
@@ -76,9 +80,12 @@ void process_connection(int cfd) {
     }
     perror("execv failed"); 
     exit(1);
-}
-	write(cfd,"Done",4);
-	close(cfd);		 
+} else if(pid > 0){
+        close(cfd);
+}else{
+	perror("fork"); 
+    close(cfd);
+    }	 
 }
 
 void* dispatch_connection(void *arg) {

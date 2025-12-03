@@ -97,12 +97,7 @@ fi
 # prepara /run/isel para socket systemd
 sudo chown root:tvsgrp /run/isel
 sudo chmod 0770 /run/isel
+sudo systemctl daemon-reload
+sudo systemctl start tvschatd.socket
 
 echo "${TAG} install finished."
-echo ""
-echo "Next steps:"
-echo " 1) Reload systemd unit files:"
-echo "      sudo systemctl daemon-reload"
-echo " 2) Enable/start socket:"
-echo "      sudo systemctl enable tvschatd.socket"
-echo "      sudo systemctl start tvschatd.socket"

@@ -85,11 +85,11 @@ int main(int argc, const char *argv[]) {
         return 4;
     }
 	//resposta
-    char response[256] = {0};
-    int n = read(cli_sock, response, sizeof(response));
+    char buf[4096];
+    ssize_t n;
 
-    if (n > 0) {
-        printf("%s\n", response);
+    while ((n = read(cli_sock, buf, sizeof(buf))) > 0) {
+        write(STDOUT_FILENO, buf, n);
     }
 
     close(cli_sock);
