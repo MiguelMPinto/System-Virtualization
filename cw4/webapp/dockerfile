@@ -2,10 +2,11 @@ FROM node:alpine
 
 WORKDIR /home/node/chat
 
-COPY package.json ./
-COPY . .
+COPY --chown=node:node package.json ./    
 
-RUN npm install
+RUN npm install                         
+
+COPY --chown=node:node . .              
 
 ENV NODE_PORT=54306
 
