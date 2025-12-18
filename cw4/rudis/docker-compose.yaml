@@ -1,0 +1,27 @@
+name: tvschat-rudis
+
+services:
+  entry:
+    image: nginx:alpine
+    ports:
+      - "40080:80"
+      - "42025:80"
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - webapp
+
+  webapp:
+    build: ./webapp
+    environment:
+    - OLLAMA_URL=http://llm:11434
+    - OLLAMA_MODEL=smollm2:135m
+    expose:
+      - "54306"
+    depends_on:
+      - llm
+
+  llm:
+    build: ./llm
+    expose:
+      - "11434"

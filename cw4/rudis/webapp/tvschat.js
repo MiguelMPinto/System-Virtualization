@@ -20,6 +20,9 @@ const APP_DIR    = path.dirname(__filename);
 // Server: Listen on NODE_PORT and serve the homepage
 //
 
+// teste comentário
+
+
 if (!NODE_PORT) {
   process.stderr.write('ERROR: missing NODE_PORT configuration variable\n');
   process.exit(1);
