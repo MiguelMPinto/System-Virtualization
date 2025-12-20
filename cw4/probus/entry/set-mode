@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if [ "$1" = "prod" ]; then
+  ln -sf /etc/nginx/nginx-prod.conf /etc/nginx/nginx.conf
+elif [ "$1" = "dev" ]; then
+  ln -sf /etc/nginx/nginx-dev.conf /etc/nginx/nginx.conf
+else
+  echo "Usage: set-mode {prod|dev}"
+  exit 1
+fi
+
+nginx -s reload

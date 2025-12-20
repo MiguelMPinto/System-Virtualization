@@ -1,0 +1,41 @@
+name: tvschat-probus
+
+services:
+  entry:
+    build: ./entry
+    ports:
+      - "40080:80"
+    depends_on:
+      - webapp
+    networks:
+      - frontend
+
+  webapp:
+    build: ../rudis/webapp
+    environment:
+      - OLLAMA_URL=http://llm:11434
+      - OLLAMA_MODEL=smollm2:135m
+    expose:
+      - "54306"
+    depends_on:
+      - llm
+    networks:
+      - frontend
+      - backend
+
+  llm:
+    build: ./llm
+    expose:
+      - "11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - backend
+
+networks:
+  frontend:
+  backend:
+  dev-llm:
+
+volumes:
+  ollama-data:
