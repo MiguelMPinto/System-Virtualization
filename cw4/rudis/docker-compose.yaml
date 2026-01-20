@@ -10,18 +10,34 @@ services:
       - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - webapp
-
+      
+    networks:
+      - frontnet
   webapp:
     build: ./webapp
+
     environment:
-    - OLLAMA_URL=http://llm:11434
-    - OLLAMA_MODEL=smollm2:135m
+      - OLLAMA_URL=http://llm:11434
+      - OLLAMA_MODEL=smollm2:135m
+
     expose:
       - "54306"
+
     depends_on:
       - llm
+    
+    networks:
+      - frontnet
+      - backnet
 
   llm:
     build: ./llm
     expose:
       - "11434"
+
+    networks:
+      - backnet
+
+networks:
+  frontnet:
+  backnet:
