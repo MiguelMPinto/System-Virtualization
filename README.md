@@ -1,10 +1,9 @@
-### ISEL - System Virtualization Techniques
-##### Autumn/Winter 2025/26
-----
+# System Virtualization
 
-Group Id: **G06**
+Coursework repository for **System Virtualization Techniques**, developed as an academic project at ISEL during the Autumn/Winter 2025/26 semester.
 
-Members:
- - 51585 - André Vaz
- - 51557 - Miguel Pinto
- - 50506 - Diogo Teixeira
+## Overview
+
+This repository contains coursework assignments focused on low-level systems programming and virtualization-related concepts. The work is organized as a set of practical assignments, with supporting source code, build files and documentation.
+
+The project was developed in a group context and explores
